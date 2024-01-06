@@ -38,8 +38,8 @@ export default function SignInPage() {
          if (data?.access_token) {
             const decoded = jwtDecode(data?.access_token);
             console.log('decoded', decoded);
-            if (decoded?.payload) {
-               handleGetDetailsUser(decoded?.payload?.id, data?.access_token);
+            if (decoded?.id) {
+               handleGetDetailsUser(decoded?.id, data?.access_token);
             }
          }
       }
@@ -47,7 +47,6 @@ export default function SignInPage() {
    const handleGetDetailsUser = async (id, token) => {
       const res = await UserService.getDetailsUser(id, token);
       dispatch(updateUser({...res?.data, access_token: token}));
-      console.log('res', res);
    };
    const handleNavigateSignUp = () => {
       navigate('/sign-up');
