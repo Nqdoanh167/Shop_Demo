@@ -1,5 +1,4 @@
 /** @format */
-
 import {Upload} from 'antd';
 import styled from 'styled-components';
 
@@ -17,7 +16,7 @@ export const WrapperUploadFile = styled(Upload)`
    & .ant-upload-list-item-info {
       display: none;
    }
-   & .ant-upload-list-item {
+   & .ant-upload-list {
       display: none;
    }
 `;
