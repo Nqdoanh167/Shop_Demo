@@ -48,7 +48,7 @@ const updateProduct = (id, data) => {
          const updateProduct = await Product.findByIdAndUpdate(id, data, {new: true});
          resolve({
             status: 'OK',
-            message: 'SUCCESS',
+            message: 'UPDATE SUCCESSFULLY',
             data: updateProduct,
          });
       } catch (e) {

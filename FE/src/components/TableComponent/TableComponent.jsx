@@ -26,6 +26,7 @@ export default function TableComponent(props) {
             }}
             columns={columns}
             dataSource={data}
+            {...props}
          />
       </Loading>
    );
