@@ -11,8 +11,59 @@ import * as ProductService from '../../services/ProductService';
 import {useMutationHook} from '../../hooks/useMutationHook';
 import Loading from '../../components/LoadingComponent/Loading';
 import * as message from '../../components/Message/Message';
+import {useQuery} from 'react-query';
+import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
 export default function AdminProduct() {
    const [isModalOpen, setIsModalOpen] = useState(false);
+   const [form] = Form.useForm();
+
+   // get list products
+   const fetchProductAll = async () => {
+      const res = await ProductService.getAllProduct();
+      return res;
+   };
+   const {isLoading: isLoadingProducts, data: products} = useQuery(['products'], fetchProductAll, {
+      retry: 3,
+      retryDelay: 1000,
+   });
+   const renderAction = () => {
+      return (
+         <div>
+            <DeleteOutlined style={{fontSize: '30px', color: 'red', cursor: 'pointer'}} />
+            <EditOutlined style={{fontSize: '30px', color: 'orange', cursor: 'pointer'}} />
+         </div>
+      );
+   };
+   const columns = [
+      {
+         title: 'Name',
+         dataIndex: 'name',
+         render: (text) => <a>{text}</a>,
+      },
+      {
+         title: 'Price',
+         dataIndex: 'price',
+      },
+      {
+         title: 'Rating',
+         dataIndex: 'rating',
+      },
+      {
+         title: 'Type',
+         dataIndex: 'type',
+      },
+      {
+         title: 'Action',
+         dataIndex: 'action',
+         render: renderAction,
+      },
+   ];
+   const dataTable =
+      products?.data.length &&
+      products?.data?.map((product) => {
+         return {...product, key: product._id};
+      });
+   // create product
    const [stateProduct, setStateProduct] = useState({
       name: '',
       price: '',
@@ -48,13 +99,22 @@ export default function AdminProduct() {
    }, [isSuccess]);
    const handleCancel = () => {
       setIsModalOpen(false);
+      setStateProduct({
+         name: '',
+         price: '',
+         description: '',
+         rating: '',
+         image: '',
+         type: '',
+         countInStock: '',
+         discount: '',
+      });
+      form.resetFields();
    };
    const onFinish = () => {
       mutation.mutate(stateProduct);
    };
-   const onFinishFailed = (errorInfo) => {
-      console.log('Failed:', errorInfo);
-   };
+
    const handleOnChange = (e) => {
       setStateProduct({
          ...stateProduct,
@@ -83,17 +143,17 @@ export default function AdminProduct() {
             </Button>
          </div>
          <div style={{marginTop: '20px'}}>
-            <TableComponent />
+            <TableComponent isLoading={isLoadingProducts} columns={columns} data={dataTable} />
          </div>
-         <Modal title='Tạo sản phẩm' open={isModalOpen} onCancel={handleCancel}>
+         <Modal title='Tạo sản phẩm' open={isModalOpen} onCancel={handleCancel} footer={null}>
             <Loading isLoading={isLoading}>
                <Form
                   name='basic'
                   labelCol={{
-                     span: 8,
+                     span: 6,
                   }}
                   wrapperCol={{
-                     span: 16,
+                     span: 18,
                   }}
                   style={{
                      maxWidth: 600,
@@ -102,8 +162,8 @@ export default function AdminProduct() {
                      remember: true,
                   }}
                   onFinish={onFinish}
-                  onFinishFailed={onFinishFailed}
-                  autoComplete='off'
+                  autoComplete='on'
+                  form={form}
                >
                   <Form.Item
                      label='Name'
@@ -207,19 +267,10 @@ export default function AdminProduct() {
                         </div>
                      </WrapperUploadFile>
                   </WrapperFormItem>
-                  <Form.Item
-                     name='remember'
-                     valuePropName='checked'
-                     wrapperCol={{
-                        offset: 8,
-                        span: 16,
-                     }}
-                  >
-                     <Checkbox>Remember me</Checkbox>
-                  </Form.Item>
+
                   <Form.Item
                      wrapperCol={{
-                        offset: 8,
+                        offset: 20,
                         span: 16,
                      }}
                   >
