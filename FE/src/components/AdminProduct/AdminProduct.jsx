@@ -116,10 +116,10 @@ export default function AdminProduct() {
       setIsOpenDrawer(false);
    };
    useEffect(() => {
-      if (isSuccessUpdated && data?.status === 'OK') {
+      if (isSuccessUpdated && dataUpdated?.status === 'OK') {
          message.success();
          handleCloseDrawer();
-      } else if (isError) {
+      } else if (isErrorUpdated) {
          message.error();
       }
    }, [isSuccessUpdated, isErrorUpdated]);
@@ -390,9 +390,7 @@ export default function AdminProduct() {
       isSuccess: isSuccessDeleted,
       isError: isErrorDeleted,
    } = mutationDelete;
-   console.log('mutationDelete', mutationDelete);
-   console.log('isSuccessDeleted', isSuccessDeleted);
-   console.log('dataDeleted', dataDeleted);
+
    useEffect(() => {
       if (isSuccessDeleted && dataDeleted?.status === 'OK') {
          message.success();
@@ -567,6 +565,7 @@ export default function AdminProduct() {
             isOpen={isOpenDrawer}
             onClose={() => setIsOpenDrawer(false)}
             size={'large'}
+            width='90%'
          >
             <Loading isLoading={isLoadingUpdate && isLoadingUpdated}>
                <Form
