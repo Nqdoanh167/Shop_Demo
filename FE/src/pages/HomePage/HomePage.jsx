@@ -1,6 +1,6 @@
 /** @format */
 
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import TypeProduct from '../../components/TypeProduct/TypeProduct';
 import {WrapperButtonMore, WrapperProducts, WrapperTypeProduct} from './styled';
 import SliderComponent from '../../components/SliderComponent/SliderComponent';
@@ -11,17 +11,38 @@ import CardComponent from '../../components/CardComponent/CardComponent';
 import NavbarComponent from '../../components/NavBarComponent/NavbarComponent';
 import {useQuery} from 'react-query';
 import * as ProductService from '../../services/ProductService';
-
+import {useSelector} from 'react-redux';
+import {useDebounce} from '../../hooks/useDebounce';
+import Loading from '../../components/LoadingComponent/Loading';
 export default function HomePage() {
+   const searchProduct = useSelector((state) => state?.product?.search);
+   const searchDebounce = useDebounce(searchProduct, 500);
+   const refSearch = useRef();
+   const [loading, setLoading] = useState(false);
+   const [stateProducts, setStateProducts] = useState([]);
    const arr = ['TV', 'Tu Lanh', 'Lap top'];
-   const fetchProductAll = async () => {
-      const res = await ProductService.getAllProduct();
+   const fetchProductAll = async (search) => {
+      const res = await ProductService.getAllProduct(search);
+      setLoading(false);
+      setStateProducts(res?.data);
       return res;
    };
-   const {isLoading, data: products} = useQuery(['products'], fetchProductAll, {retry: 3, retryDelay: 1000});
-   console.log('data', products);
+
+   useEffect(() => {
+      if (refSearch.current) {
+         setLoading(true);
+         fetchProductAll(searchDebounce);
+      }
+      refSearch.current = true;
+   }, [searchDebounce]);
+   const productQuery = useQuery(['products'], fetchProductAll, {
+      retry: 3,
+      retryDelay: 1000,
+      keepPreviousData: true,
+   });
+   const {isLoading, data: products} = productQuery;
    return (
-      <>
+      <Loading isLoading={loading}>
          <div style={{padding: '0 120px'}}>
             <WrapperTypeProduct>
                {arr.map((item) => (
@@ -32,7 +53,7 @@ export default function HomePage() {
          <div id='container' style={{backgroundColor: '#efefef', padding: '0 120px'}}>
             <SliderComponent arrImages={[slider1, slider2, slider3]} />
             <WrapperProducts>
-               {products?.data?.map((product) => {
+               {stateProducts?.map((product) => {
                   return (
                      <CardComponent
                         key={product._id}
@@ -68,6 +89,6 @@ export default function HomePage() {
             </div>
             <NavbarComponent />
          </div>
-      </>
+      </Loading>
    );
 }
