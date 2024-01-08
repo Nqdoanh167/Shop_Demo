@@ -306,6 +306,37 @@ export default function AdminUser() {
          message.error();
       }
    }, [isSuccessDeleted]);
+
+   // deleteMany Users
+   const mutationDeletedMany = useMutationHook((data) => {
+      const {access_token, ...ids} = data;
+      const res = UserService.deleteManyUser(ids, access_token);
+      return res;
+   });
+   const handleDeleteManyUser = (ids) => {
+      mutationDeletedMany.mutate(
+         {ids: ids, access_token: user?.access_token},
+         {
+            onSettled: () => {
+               queryUser.refetch();
+            },
+         },
+      );
+   };
+   const {
+      data: dataDeletedMany,
+      isLoading: isLoadingDeletedMany,
+      isSuccess: isSuccessDeletedMany,
+      isError: isErrorDeletedMany,
+   } = mutationDeletedMany;
+
+   useEffect(() => {
+      if (isSuccessDeletedMany && dataDeletedMany?.status === 'OK') {
+         message.success();
+      } else if (isErrorDeleted) {
+         message.error();
+      }
+   }, [isSuccessDeleted, isErrorDeletedMany]);
    return (
       <div>
          <WrapperHeader>Quản lý người dùng</WrapperHeader>
@@ -315,6 +346,7 @@ export default function AdminUser() {
                isLoading={isLoadingUsers}
                columns={columns}
                data={dataTable}
+               handleDeleteMany={handleDeleteManyUser}
                onRow={(record, rowIndex) => {
                   return {
                      onClick: (event) => {

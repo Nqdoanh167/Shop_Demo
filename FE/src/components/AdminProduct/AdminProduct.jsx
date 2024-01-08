@@ -85,7 +85,6 @@ export default function AdminProduct() {
    const handleDetailsProduct = async () => {
       setIsOpenDrawer(true);
       setIsLoadingUpdate(true);
-      console.log('rowSelected', rowSelected);
    };
    //update product
 
@@ -398,7 +397,38 @@ export default function AdminProduct() {
       } else if (isErrorDeleted) {
          message.error();
       }
-   }, [isSuccessDeleted]);
+   }, [isSuccessDeleted, isErrorDeleted]);
+
+   // delete many products
+   const mutationDeletedMany = useMutationHook((data) => {
+      const {access_token, ...ids} = data;
+      const res = ProductService.deleteManyProduct(ids, access_token);
+      return res;
+   });
+   const handleDeleteManyProducts = (ids) => {
+      mutationDeletedMany.mutate(
+         {ids: ids, access_token: user?.access_token},
+         {
+            onSettled: () => {
+               queryProduct.refetch();
+            },
+         },
+      );
+   };
+   const {
+      data: dataDeletedMany,
+      isLoading: isLoadingDeletedMany,
+      isSuccess: isSuccessDeletedMany,
+      isError: isErrorDeletedMany,
+   } = mutationDeletedMany;
+
+   useEffect(() => {
+      if (isSuccessDeletedMany && dataDeletedMany?.status === 'OK') {
+         message.success();
+      } else if (isErrorDeleted) {
+         message.error();
+      }
+   }, [isSuccessDeleted, isErrorDeletedMany]);
    return (
       <div>
          <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
@@ -415,6 +445,7 @@ export default function AdminProduct() {
                isLoading={isLoadingProducts}
                columns={columns}
                data={dataTable}
+               handleDeleteMany={handleDeleteManyProducts}
                onRow={(record, rowIndex) => {
                   return {
                      onClick: (event) => {
