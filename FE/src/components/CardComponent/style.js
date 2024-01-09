@@ -4,10 +4,9 @@ import {Card} from 'antd';
 import styled from 'styled-components';
 
 export const WrapperCardStyle = styled(Card)`
-    width: 200px;
     & img {
-        height: 200px;
-        width: 200px;
+        height: 220px;
+        width: 220px;
     },
     position: relative;
     background-color: ${(props) => (props.disabled ? '#ccc' : '#fff')};

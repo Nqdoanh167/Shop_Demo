@@ -3,6 +3,11 @@
 import {Col, Image, InputNumber} from 'antd';
 import styled from 'styled-components';
 
+export const WrapperCol = styled(Col)`
+   & .ant-image {
+      display: block;
+   }
+`;
 export const WrapperStyleImageSmall = styled(Image)`
    height: 64px !important;
    width: 64px !important;
@@ -63,17 +68,17 @@ export const WrapperQualityProduct = styled.div`
    display: flex;
    gap: 4px;
    align-items: center;
-   width: 120px;
+   width: 130px;
    border: 1px solid #ccc;
    border-radius: 4px;
 `;
 
 export const WrapperInputNumber = styled(InputNumber)`
    &.ant-input-number {
-      width: 40px;
+      width: 100px;
       border-top: none;
       border-bottom: none;
-      .ant-input-number-handler-wrap {
+      border-radius: none .ant-input-number-handler-wrap {
          display: none !important;
       }
    }

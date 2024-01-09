@@ -48,6 +48,11 @@ export const routes = [
       isShowHeader: true,
    },
    {
+      path: '/product-details/:id',
+      page: ProductDetailsPage,
+      isShowHeader: true,
+   },
+   {
       path: '/profile-user',
       page: ProfilePage,
       isShowHeader: true,

@@ -17,32 +17,28 @@ import Loading from '../../components/LoadingComponent/Loading';
 export default function HomePage() {
    const searchProduct = useSelector((state) => state?.product?.search);
    const searchDebounce = useDebounce(searchProduct, 500);
+   const [limit, setLimit] = useState(6);
    const refSearch = useRef();
-   const [loading, setLoading] = useState(false);
-   const [stateProducts, setStateProducts] = useState([]);
    const arr = ['TV', 'Tu Lanh', 'Lap top'];
-   const fetchProductAll = async (search) => {
-      const res = await ProductService.getAllProduct(search);
-      setLoading(false);
-      setStateProducts(res?.data);
+   const fetchProductAll = async (context) => {
+      const limit = context?.queryKey && context?.queryKey[1];
+      const search = context?.queryKey && context?.queryKey[2];
+      const res = await ProductService.getAllProduct(search, Number(limit));
       return res;
    };
 
    useEffect(() => {
       if (refSearch.current) {
-         setLoading(true);
          fetchProductAll(searchDebounce);
       }
       refSearch.current = true;
    }, [searchDebounce]);
-   const productQuery = useQuery(['products'], fetchProductAll, {
+   const {isLoading, data: products} = useQuery(['products', limit, searchDebounce], fetchProductAll, {
       retry: 3,
       retryDelay: 1000,
-      keepPreviousData: true,
    });
-   const {isLoading, data: products} = productQuery;
    return (
-      <Loading isLoading={loading}>
+      <Loading isLoading={isLoading}>
          <div style={{padding: '0 120px'}}>
             <WrapperTypeProduct>
                {arr.map((item) => (
@@ -53,7 +49,7 @@ export default function HomePage() {
          <div id='container' style={{backgroundColor: '#efefef', padding: '0 120px'}}>
             <SliderComponent arrImages={[slider1, slider2, slider3]} />
             <WrapperProducts>
-               {stateProducts?.map((product) => {
+               {products?.data?.map((product) => {
                   return (
                      <CardComponent
                         key={product._id}
@@ -73,18 +69,18 @@ export default function HomePage() {
             </WrapperProducts>
             <div style={{width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10px'}}>
                <WrapperButtonMore
-                  textbutton='Xem thêm'
+                  textbutton={'Xem thêm'}
                   type='outline'
                   styleButton={{
-                     border: '1px solid rgb(11,116,229)',
-                     color: 'rgb(11,116,229)',
+                     border: `1px solid ${products?.total === products?.data?.length ? '#f5f5f5' : '#9255FD'}`,
+                     color: `${products?.total === products?.data?.length ? '#f5f5f5' : '#9255FD'}`,
                      width: '240px',
-                     height: '28px',
+                     height: '38px',
                      borderRadius: '4px',
-                     display: 'flex',
-                     alignItems: 'center',
-                     justifyContent: 'center',
                   }}
+                  disabled={products?.total === products?.data?.length || products?.totalPage === 1}
+                  styleTextButton={{fontWeight: 500, color: products?.total === products?.data?.length && '#fff'}}
+                  onClick={() => setLimit((prev) => prev + 6)}
                />
             </div>
             <NavbarComponent />
