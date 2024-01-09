@@ -2,11 +2,11 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {WrapperFormItem, WrapperHeader, WrapperModal, WrapperUploadFile} from './style';
-import {Button, Modal, Checkbox, Form, Input, Space} from 'antd';
+import {Button, Modal, Checkbox, Form, Input, Space, Select} from 'antd';
 import {PlusOutlined, SearchOutlined} from '@ant-design/icons';
 import TableComponent from '../TableComponent/TableComponent';
 import InputComponent from '../../components/InputComponent/InputComponent';
-import {getBase64} from '../../utils';
+import {getBase64, renderOptions} from '../../utils';
 import * as ProductService from '../../services/ProductService';
 import {useMutationHook} from '../../hooks/useMutationHook';
 import Loading from '../../components/LoadingComponent/Loading';
@@ -337,7 +337,11 @@ export default function AdminProduct() {
       form.resetFields();
    };
    const onFinish = () => {
-      mutation.mutate(stateProduct, {
+      const params = {
+         ...stateProduct,
+         type: stateProduct.type === 'add_type' ? stateProduct.newType : stateProduct.type,
+      };
+      mutation.mutate(params, {
          onSettled: () => {
             queryProduct.refetch();
          },
@@ -348,6 +352,12 @@ export default function AdminProduct() {
       setStateProduct({
          ...stateProduct,
          [e.target.name]: e.target.value,
+      });
+   };
+   const handleChangeSelect = (value) => {
+      setStateProduct({
+         ...stateProduct,
+         type: value,
       });
    };
    const handleOnChangeAvatar = async ({fileList}) => {
@@ -429,6 +439,14 @@ export default function AdminProduct() {
          message.error();
       }
    }, [isSuccessDeleted, isErrorDeletedMany]);
+
+   // get type product
+   const fetchAllTypeProduct = async () => {
+      const res = await ProductService.getAllTypeProduct();
+      return res;
+   };
+   const typeProduct = useQuery({queryKey: ['type-product'], queryFn: fetchAllTypeProduct});
+
    return (
       <div>
          <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
@@ -498,8 +516,24 @@ export default function AdminProduct() {
                         },
                      ]}
                   >
-                     <InputComponent value={stateProduct.type} onChange={handleOnChange} name='type' />
+                     <Select
+                        name='type'
+                        // defaultValue="lucy"
+                        // style={{ width: 120 }}
+                        value={stateProduct.type}
+                        onChange={handleChangeSelect}
+                        options={renderOptions(typeProduct?.data?.data)}
+                     />
                   </Form.Item>
+                  {stateProduct.type === 'add_type' && (
+                     <Form.Item
+                        label='New type'
+                        name='newType'
+                        rules={[{required: true, message: 'Please input your type!'}]}
+                     >
+                        <InputComponent value={stateProduct.newType} onChange={handleOnChange} name='newType' />
+                     </Form.Item>
+                  )}
                   <Form.Item
                      label='count InStock'
                      name='countInStock'
