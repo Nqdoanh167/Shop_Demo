@@ -7,7 +7,7 @@ import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import {Image} from 'antd';
 import imageLogo from '../../assets/images/logo-login.png';
 import {EyeFilled, EyeInvisibleFilled} from '@ant-design/icons';
-import {useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import * as UserService from '../../services/UserService';
 import {useMutationHook} from '../../hooks/useMutationHook';
 import Loading from '../../components/LoadingComponent/Loading';
@@ -21,19 +21,24 @@ export default function SignInPage() {
    const [email, setEmail] = useState('');
    const [password, setPassword] = useState('');
    const dispatch = useDispatch();
+   const location = useLocation();
+   const navigate = useNavigate();
    const handleOnChangeEmail = (value) => {
       setEmail(value);
    };
    const handleOnChangePassword = (value) => {
       setPassword(value);
    };
-   const navigate = useNavigate();
    const mutation = useMutationHook((data) => UserService.loginUser(data));
    const {data, isLoading, isSuccess} = mutation;
    useEffect(() => {
       if (isSuccess) {
          // message.success();
-         navigate('/');
+         if (location?.state) {
+            navigate(location.state);
+         } else {
+            navigate('/');
+         }
          localStorage.setItem('access_token', JSON.stringify(data?.access_token));
          if (data?.access_token) {
             const decoded = jwtDecode(data?.access_token);

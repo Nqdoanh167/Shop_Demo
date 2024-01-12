@@ -21,10 +21,15 @@ import {StarFilled, PlusOutlined, MinusOutlined} from '@ant-design/icons';
 import ButtonComponent from '../ButtonComponent/ButtonComponent';
 import {useQuery} from 'react-query';
 import {convertPrice} from '../../utils';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {addOrderProduct} from '../../redux/slides/orderSlide';
 export default function ProductDetailsComponent({idProduct}) {
    const user = useSelector((state) => state.user);
    const [numProduct, setNumProduct] = useState(1);
+   const location = useLocation();
+   const navigate = useNavigate();
+   const dispatch = useDispatch();
    const onChange = () => {};
    const fetchGetDetailsProduct = async () => {
       const res = await ProductService.getDetailsProduct(idProduct);
@@ -37,6 +42,25 @@ export default function ProductDetailsComponent({idProduct}) {
       if (type === 'increase') {
          setNumProduct(numProduct + 1);
       } else setNumProduct(numProduct - 1);
+   };
+   const handleAddOrderProduct = () => {
+      if (!user.id) {
+         navigate('/sign-in', {state: location?.pathname});
+      } else {
+         dispatch(
+            addOrderProduct({
+               orderItem: {
+                  name: productDetails?.name,
+                  amount: numProduct,
+                  image: productDetails?.image,
+                  price: productDetails?.price,
+                  product: productDetails?._id,
+                  discount: productDetails?.discount,
+                  countInstock: productDetails?.countInStock,
+               },
+            }),
+         );
+      }
    };
    return (
       <Row style={{padding: '16px', backgroundColor: '#fff', borderRadius: '4px'}}>
@@ -115,6 +139,7 @@ export default function ProductDetailsComponent({idProduct}) {
                   }}
                   textbutton={'Chọn mua'}
                   styleTextButton={{color: '#fff', fontWeight: '700'}}
+                  onClick={handleAddOrderProduct}
                ></ButtonComponent>
                <ButtonComponent
                   size={40}
