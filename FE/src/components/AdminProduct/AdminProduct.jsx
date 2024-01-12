@@ -301,7 +301,7 @@ export default function AdminProduct() {
       discount: '',
    });
    const mutation = useMutationHook(async (data) => {
-      const {name, price, description, rating, image, type, countInStock} = data;
+      const {name, price, description, rating, image, type, countInStock, discount} = data;
       const res = await ProductService.createProduct({
          name,
          price,
@@ -310,6 +310,7 @@ export default function AdminProduct() {
          image,
          type,
          countInStock,
+         discount,
       });
       return res;
    });
@@ -582,6 +583,18 @@ export default function AdminProduct() {
                   >
                      <InputComponent value={stateProduct.rating} onChange={handleOnChange} name='rating' />
                   </Form.Item>
+                  <Form.Item
+                     label='Discount'
+                     name='discount'
+                     rules={[
+                        {
+                           required: true,
+                           message: 'Please input your discount of product!',
+                        },
+                     ]}
+                  >
+                     <InputComponent value={stateProduct.discount} onChange={handleOnChange} name='discount' />
+                  </Form.Item>
                   <WrapperFormItem
                      label='Image'
                      name='image'
@@ -734,6 +747,22 @@ export default function AdminProduct() {
                         value={stateProductDetails.rating}
                         onChange={handleOnChangeDetails}
                         name='rating'
+                     />
+                  </Form.Item>
+                  <Form.Item
+                     label='Discount'
+                     name='discount'
+                     rules={[
+                        {
+                           required: true,
+                           message: 'Please input your discount of product!',
+                        },
+                     ]}
+                  >
+                     <InputComponent
+                        value={stateProductDetails.discount}
+                        onChange={handleOnChangeDetails}
+                        name='discount'
                      />
                   </Form.Item>
                   <WrapperFormItem
