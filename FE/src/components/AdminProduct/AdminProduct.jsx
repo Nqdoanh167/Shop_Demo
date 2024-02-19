@@ -27,8 +27,7 @@ export default function AdminProduct() {
    const [searchedColumn, setSearchedColumn] = useState('');
    const searchInput = useRef(null);
    const [form] = Form.useForm();
-   //get detail product
-   const [stateProductDetails, setStateProductDetails] = useState({
+   const inittial = () => ({
       name: '',
       price: '',
       description: '',
@@ -39,6 +38,8 @@ export default function AdminProduct() {
       newType: '',
       discount: '',
    });
+   //get detail product
+   const [stateProductDetails, setStateProductDetails] = useState(inittial());
    const handleOnChangeDetails = (e) => {
       setStateProductDetails({
          ...stateProductDetails,
@@ -73,8 +74,12 @@ export default function AdminProduct() {
       setIsLoadingUpdate(false);
    };
    useEffect(() => {
-      form.setFieldsValue(stateProductDetails);
-   }, [form, stateProductDetails]);
+      if (!isModalOpen) {
+         form.setFieldsValue(stateProductDetails);
+      } else {
+         form.setFieldsValue(inittial());
+      }
+   }, [form, stateProductDetails, isModalOpen]);
 
    useEffect(() => {
       if (rowSelected && isOpenDrawer) {
@@ -124,16 +129,7 @@ export default function AdminProduct() {
    }, [isSuccessUpdated, isErrorUpdated]);
    const handleCloseDrawer = () => {
       setIsOpenDrawer(false);
-      setStateProductDetails({
-         name: '',
-         price: '',
-         description: '',
-         rating: '',
-         image: '',
-         type: '',
-         countInStock: '',
-         discount: '',
-      });
+      setStateProductDetails(inittial());
       form.resetFields();
    };
    // get list products
@@ -289,17 +285,7 @@ export default function AdminProduct() {
          return {...product, key: product._id};
       });
    // create product
-   const [stateProduct, setStateProduct] = useState({
-      name: '',
-      price: '',
-      description: '',
-      rating: '',
-      image: '',
-      type: '',
-      countInStock: '',
-      newType: '',
-      discount: '',
-   });
+   const [stateProduct, setStateProduct] = useState(inittial());
    const mutation = useMutationHook(async (data) => {
       const {name, price, description, rating, image, type, countInStock, discount} = data;
       const res = await ProductService.createProduct({
@@ -325,16 +311,7 @@ export default function AdminProduct() {
    }, [isSuccess, isError]);
    const handleCancel = () => {
       setIsModalOpen(false);
-      setStateProduct({
-         name: '',
-         price: '',
-         description: '',
-         rating: '',
-         image: '',
-         type: '',
-         countInStock: '',
-         discount: '',
-      });
+      setStateProduct(inittial());
       form.resetFields();
    };
    const onFinish = () => {

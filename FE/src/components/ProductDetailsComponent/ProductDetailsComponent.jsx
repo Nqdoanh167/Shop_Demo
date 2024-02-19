@@ -24,6 +24,7 @@ import {convertPrice} from '../../utils';
 import {useSelector, useDispatch} from 'react-redux';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {addOrderProduct} from '../../redux/slides/orderSlide';
+
 export default function ProductDetailsComponent({idProduct}) {
    const user = useSelector((state) => state.user);
    const [numProduct, setNumProduct] = useState(1);
